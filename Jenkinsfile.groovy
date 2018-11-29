@@ -2,6 +2,7 @@
 
 
 def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
+def release_number;
 
 node ("maven") {
 
@@ -10,7 +11,6 @@ node ("maven") {
 		checkout scm
 
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
-		def release_number;
 
 		if(BRANCH_NAME.startsWith("release")) {
 			def tokens = BRANCH_NAME.tokenize( '/' )
