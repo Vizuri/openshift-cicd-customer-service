@@ -47,7 +47,7 @@ node ("maven") {
 				[$class: 'FailedThreshold', unstableThreshold: '1']
 			],
 			tools: [
-				[$class: "JUnitType", pattern: "${projectFolder}/target/surefire-reports/*.xml"]
+				[$class: "JUnitType", pattern: "target/surefire-reports/*.xml"]
 			]])
 	}
 }
