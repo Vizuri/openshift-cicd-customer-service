@@ -21,15 +21,13 @@ node ("maven") {
 		}
 		else {
 			sh (
-			script: "mvn -B help:evaluate -Dexpression=project.version | grep -e '^[^\\[]' > release.txt",
-			returnStdout: true,
-			returnStatus: false
-			)
+					script: "mvn -B help:evaluate -Dexpression=project.version | grep -e '^[^\\[]' > release.txt",
+					returnStdout: true,
+					returnStatus: false
+					)
 			release_number = readFile('release.txt').trim()
 			echo "release_number: ${release_number}"
 		}
-
-		
 	}
 
 
@@ -37,7 +35,7 @@ node ("maven") {
 		echo "In Build"
 		sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl}  -DskipTests=true -Dbuild.number=${release_number} clean install"
 	}
-	
+
 	stage ('Unit Test') {
 		sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl}  -Dbuild.number=${release_number} test"
 		junit "target/surefire-reports/*.xml"
@@ -49,6 +47,30 @@ node ("maven") {
 			tools: [
 				[$class: "JUnitType", pattern: "target/surefire-reports/*.xml"]
 			]])
+	}
+
+//	stage('SonarQube Analysis') {
+//		withSonarQubeEnv('sonar') { sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -Dbuild.number=${release_number}  sonar:sonar" }
+//	}
+//
+//
+//	stage("Quality Gate"){
+//		timeout(time: 1, unit: 'HOURS') {
+//			def qg = waitForQualityGate()
+//			if (qg.status != 'OK') {
+//				error "Pipeline aborted due to quality gate failure: ${qg.status}"
+//			}
+//		}
+//	}
+
+	stage('Deploy Build Artifact') {
+		when {
+			anyOf {
+				branch "release/*"
+				branch "develop"
+			}
+		}
+		sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"	
 	}
 }
 
