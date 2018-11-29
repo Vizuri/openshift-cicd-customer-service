@@ -64,14 +64,7 @@ node ("maven") {
 //	}
 
 	stage('Deploy Build Artifact') {
-		//agent any
-		when {
-			anyOf {
-				branch "release/*"
-				branch "develop"
-			}
-		}
-		steps {
+		if (BRANCH_NAME ==~ /(develop|release)/) {
 			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"	
 		}
 	}
