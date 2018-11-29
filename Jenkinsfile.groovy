@@ -1,6 +1,8 @@
 #!/usr/bin/groovy
 
-
+def imageBase = "release.kee.vizuri.com";
+def imageNamespace = "student-1";
+def app_name = "customer"
 def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
 def release_number;
 
@@ -10,13 +12,10 @@ node ("maven-podman") {
 		echo "In checkout"
 		checkout scm
 
-		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
-
-		if(BRANCH_NAME.startsWith("release")) {
+		if(BRANCH_NAME ==~ /release.*)/) {
 			def tokens = BRANCH_NAME.tokenize( '/' )
 			branch_name = tokens[0]
 			branch_release_number = tokens[1]
-
 			release_number = branch_release_number
 		}
 		else {
@@ -65,6 +64,10 @@ node ("maven-podman") {
 	if (BRANCH_NAME ==~ /(develop|release.*)/) {
 		stage('Deploy Build Artifact') {
 			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"	
+		}
+		stage('Container Build') {
+			def tag = "${env.RELEASE_NUMBER}"
+			sh "podman build -t ${imageBase}/${imageNamespace}/${app_name}:${tag} ."
 		}
 	}
 }
