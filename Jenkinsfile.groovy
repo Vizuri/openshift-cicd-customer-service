@@ -49,19 +49,19 @@ node ("maven") {
 			]])
 	}
 
-//	stage('SonarQube Analysis') {
-//		withSonarQubeEnv('sonar') { sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -Dbuild.number=${release_number}  sonar:sonar" }
-//	}
-//
-//
-//	stage("Quality Gate"){
-//		timeout(time: 1, unit: 'HOURS') {
-//			def qg = waitForQualityGate()
-//			if (qg.status != 'OK') {
-//				error "Pipeline aborted due to quality gate failure: ${qg.status}"
-//			}
-//		}
-//	}
+	stage('SonarQube Analysis') {
+		withSonarQubeEnv('sonar') { sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -Dbuild.number=${release_number}  sonar:sonar" }
+	}
+
+
+	stage("Quality Gate"){
+		timeout(time: 1, unit: 'HOURS') {
+			def qg = waitForQualityGate()
+			if (qg.status != 'OK') {
+				error "Pipeline aborted due to quality gate failure: ${qg.status}"
+			}
+		}
+	}
 	if (BRANCH_NAME ==~ /(develop|release.*)/) {
 		stage('Deploy Build Artifact') {
 			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"	
