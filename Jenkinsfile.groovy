@@ -1,7 +1,7 @@
 #!/usr/bin/groovy
 
 def imageBase = "release.kee.vizuri.com";
-def imageNamespace = "student-1";
+def imageNamespace = "student_1";
 def registryUsername = "student-1"
 def registryPassword = "P@ssw0rd"
 def app_name = "customer";
