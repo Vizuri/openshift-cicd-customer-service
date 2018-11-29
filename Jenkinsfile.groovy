@@ -31,13 +31,13 @@ node ("maven") {
 			echo "release_number: ${release_number}"
 		}
 
-		env.RELEASE_NUMBER = release_number;
+		
 	}
 
 
 	stage('Build') {
 		echo "In Build"
-		sh "mvn -s configuration/settings.xml -Dnexus.url=${env.nexusUrl}  -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} clean install"
+		sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl}  -DskipTests=true -Dbuild.number=${release_number} clean install"
 	}
 }
 
