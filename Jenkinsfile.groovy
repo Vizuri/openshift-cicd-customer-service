@@ -64,17 +64,20 @@ node ("maven-podman") {
 		}
 	}
 	if (BRANCH_NAME ==~ /(develop|release.*)/) {
+		def tag = "${release_number}"
 		stage('Deploy Build Artifact') {
 			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"	
 		}
 		stage('Container Build') {
-			def tag = "${release_number}"
 			sh "podman build -t ${imageBase}/${imageNamespace}/${app_name}:${tag} ."
 		}
 		stage('Container Push') {
-			def tag = "${release_number}"
 			sh "podman login -u ${registryUsername} -p ${registryPassword} ${imageBase}"
 			sh "podman push ${imageBase}/${imageNamespace}/${app_name}:${tag}"
+		}
+		stage('Container Scan') {
+			writeFile file: 'anchore_images', text: "${imageBase}/${imageNamespace}/${app_name}:${tag} Dockerfile"
+			anchore name: 'anchore_images'
 		}
 	}
 }
