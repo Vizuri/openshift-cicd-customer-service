@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
 
-public class CustomerIntegrationTest {
-	private static Logger logger = LoggerFactory.getLogger(CustomerIntegrationTest.class);
+public class CustomerIntegration {
+	private static Logger logger = LoggerFactory.getLogger(CustomerIntegration.class);
 
 
 	TestRestTemplate restTemplate = new TestRestTemplate();
