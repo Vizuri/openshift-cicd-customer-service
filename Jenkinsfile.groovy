@@ -64,7 +64,7 @@ node ("maven") {
 //	}
 
 	stage('Deploy Build Artifact') {
-		agent any
+		//agent any
 		when {
 			anyOf {
 				branch "release/*"
