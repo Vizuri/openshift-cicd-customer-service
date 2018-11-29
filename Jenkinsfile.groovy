@@ -1,9 +1,12 @@
 #!/usr/bin/groovy
 
 pipeline {
-	def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com"
+
 	
-	environment { RELEASE_NUMBER = ""; }
+	environment { 
+		RELEASE_NUMBER = ""; 
+		nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
+	}
 	node { checkout scm; }
 	node ("maven") {
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
@@ -35,7 +38,7 @@ pipeline {
 		}
 		stage('Build') {
 			echo "In Build"
-			sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl}  -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} clean install"
+			sh "mvn -s configuration/settings.xml -Dnexus.url=${env.nexusUrl}  -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} clean install"
 		}
 	}
 }
