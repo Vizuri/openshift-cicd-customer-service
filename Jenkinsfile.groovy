@@ -1,13 +1,10 @@
 #!/usr/bin/groovy
 
 pipeline {
-
-
 	environment {
 		RELEASE_NUMBER = "";
 		nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
 	}
-
 
 	node ("maven") {
 
