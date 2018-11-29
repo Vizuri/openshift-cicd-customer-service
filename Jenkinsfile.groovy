@@ -68,11 +68,11 @@ node ("maven-podman") {
 			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"	
 		}
 		stage('Container Build') {
-			def tag = "${env.RELEASE_NUMBER}"
+			def tag = "${release_number}"
 			sh "podman build -t ${imageBase}/${imageNamespace}/${app_name}:${tag} ."
 		}
 		stage('Container Push') {
-			def tag = "${env.RELEASE_NUMBER}"
+			def tag = "${release_number}"
 			sh "podman login -u ${registryUsername} -p ${registryPassword} ${imageBase}"
 			sh "podman push ${imageBase}/${imageNamespace}/${app_name}:${tag}"
 		}
