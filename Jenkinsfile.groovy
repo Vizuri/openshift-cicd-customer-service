@@ -2,7 +2,7 @@
 
 def imageBase = "release.kee.vizuri.com";
 def imageNamespace = "student-1";
-def app_name = "customer"
+def app_name = "customer";
 def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
 def release_number;
 
@@ -12,7 +12,7 @@ node ("maven-podman") {
 		echo "In checkout"
 		checkout scm
 
-		if(BRANCH_NAME ==~ /release.*)/) {
+		if(BRANCH_NAME ==~ /(release.*)/) {
 			def tokens = BRANCH_NAME.tokenize( '/' )
 			branch_name = tokens[0]
 			branch_release_number = tokens[1]
