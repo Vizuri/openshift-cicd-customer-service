@@ -62,9 +62,8 @@ node ("maven") {
 //			}
 //		}
 //	}
-
-	stage('Deploy Build Artifact') {
-		if (BRANCH_NAME ==~ /(develop|release)/) {
+	if (BRANCH_NAME ==~ /(develop|release)/) {
+		stage('Deploy Build Artifact') {
 			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"	
 		}
 	}
