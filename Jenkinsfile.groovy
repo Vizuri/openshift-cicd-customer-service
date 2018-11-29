@@ -40,7 +40,7 @@ node ("maven") {
 	
 	stage ('Unit Test') {
 		sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl}  -Dbuild.number=${release_number} test"
-		junit "${projectFolder}/target/surefire-reports/*.xml"
+		junit "target/surefire-reports/*.xml"
 
 		step([$class: 'XUnitBuilder',
 			thresholds: [
