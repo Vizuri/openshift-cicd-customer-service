@@ -1,9 +1,7 @@
 #!/usr/bin/groovy
 
-environment {
-	RELEASE_NUMBER = "";
-	nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
-}
+
+def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
 
 node ("maven") {
 
