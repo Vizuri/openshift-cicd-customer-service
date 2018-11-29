@@ -2,6 +2,8 @@
 
 def imageBase = "release.kee.vizuri.com";
 def imageNamespace = "student-1";
+def registryUsername = "student-1"
+def registryPassword = "P@ssw0rd"
 def app_name = "customer";
 def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
 def release_number;
@@ -68,6 +70,11 @@ node ("maven-podman") {
 		stage('Container Build') {
 			def tag = "${env.RELEASE_NUMBER}"
 			sh "podman build -t ${imageBase}/${imageNamespace}/${app_name}:${tag} ."
+		}
+		stage('Container Push') {
+			def tag = "${env.RELEASE_NUMBER}"
+			sh "podman login -u ${registryUsername} -p ${registryPassword} ${imageBase}"
+			sh "podman push ${imageBase}/${imageNamespace}/${app_name}:${tag}"
 		}
 	}
 }
