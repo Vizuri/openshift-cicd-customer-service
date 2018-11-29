@@ -4,7 +4,7 @@
 def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
 def release_number;
 
-node ("maven") {
+node ("maven-podman") {
 
 	stage('Checkout') {
 		echo "In checkout"
