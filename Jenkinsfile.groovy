@@ -89,6 +89,8 @@ node() {
 		def ocp_project = ocpDevProject;
 		def tag = "${release_number}"
 		stage('Container Scan') {
+			checkout scm
+			
 			writeFile file: 'anchore_images', text: "${imageBase}/${imageNamespace}/${app_name}:${tag} Dockerfile"
 			anchore name: 'anchore_images'
 		}
