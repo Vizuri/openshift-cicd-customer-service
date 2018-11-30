@@ -100,7 +100,7 @@ node ("maven-podman") {
 					}
 					else {
 						def dcObject = dc.object()
-						dcObject.spec.template.spec.containers[0].image = "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
+						dcObject.spec.template.spec.containers[0].image = "${imageBase}/${imageNamespace}/${app_name}:${tag}"
 						openshift.apply(dcObject)
 					}
 
