@@ -126,7 +126,7 @@ node ("maven-podman") {
 		
 		stage ('Integration Test') {
 			def testEndpoint = "http://${app_name}-${ocp_project}.${ocpAppSuffix}"
-			sh "mvn -s settings.xml -Dnexus.url=${nexusUrl} -P integration-tests -Dbuild.number=${release-number} -DbaseUrl=${testEndpoint} integration-test"
+			sh "mvn -s settings.xml -Dnexus.url=${nexusUrl} -P integration-tests -Dbuild.number=${release_number} -DbaseUrl=${testEndpoint} integration-test"
 			junit "target/surefire-reports/*.xml"
 	
 			step([$class: 'XUnitBuilder',
