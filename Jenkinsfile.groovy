@@ -92,7 +92,7 @@ node() {
 			checkout scm
 			
 			writeFile file: 'anchore_images', text: "${imageBase}/${imageNamespace}/${app_name}:${tag} Dockerfile"
-			anchore name: 'anchore_images'
+			anchore engineRetries: '500', name: 'anchore_images'
 		}
 		stage("Deploy Openshift ${ocp_project}") {
 			echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
