@@ -83,7 +83,7 @@ node ("maven-podman") {
 		}
 	}
 	
-	if (BRANCH_NAME ==~ /(develop/) {
+	if (BRANCH_NAME ==~ /(develop)/) {
 		def ocp_project = ocp_dev_project;
 		
 		stage("Deploy Openshift ${ocp_project}") {
