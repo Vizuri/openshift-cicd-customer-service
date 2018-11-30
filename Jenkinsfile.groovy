@@ -85,6 +85,7 @@ node ("maven-podman") {
 	
 	if (BRANCH_NAME ==~ /(develop)/) {
 		def ocp_project = ocpDevProject;
+		def tag = "${release_number}"
 		
 		stage("Deploy Openshift ${ocp_project}") {
 			echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
