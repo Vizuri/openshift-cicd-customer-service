@@ -8,7 +8,7 @@ def app_name = "customer";
 def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
 def release_number;
 
-def ocpCluster = "ocp-nonprod-01"
+def ocp_cluster = "ocp-nonprod-01"
 def ocpDevProject = "student-1-customer-dev"
 def ocpTestProject = "student-1-customer-test"
 def ocpProdProject = "student-1-customer-prod"
