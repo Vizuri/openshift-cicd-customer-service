@@ -82,15 +82,11 @@ node ("maven-podman") {
 
 	}
 	
-}
-node() {
-	
+
 	if (BRANCH_NAME ==~ /(develop)/) {
 		def ocp_project = ocpDevProject;
 		def tag = "${release_number}"
 		stage('Container Scan') {
-			checkout scm
-			
 			writeFile file: 'anchore_images', text: "${imageBase}/${imageNamespace}/${app_name}:${tag} Dockerfile"
 			anchore engineRetries: '800', name: 'anchore_images'
 		}
