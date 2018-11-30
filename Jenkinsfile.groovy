@@ -79,16 +79,19 @@ node ("maven-podman") {
 			sh "podman login -u ${registryUsername} -p ${registryPassword} ${imageBase}"
 			sh "podman push ${imageBase}/${imageNamespace}/${app_name}:${tag}"
 		}
-		stage('Container Scan') {
-			writeFile file: 'anchore_images', text: "${imageBase}/${imageNamespace}/${app_name}:${tag} Dockerfile"
-			anchore name: 'anchore_images'
-		}
+
 	}
+	
+}
+node() {
 	
 	if (BRANCH_NAME ==~ /(develop)/) {
 		def ocp_project = ocpDevProject;
 		def tag = "${release_number}"
-		
+		stage('Container Scan') {
+			writeFile file: 'anchore_images', text: "${imageBase}/${imageNamespace}/${app_name}:${tag} Dockerfile"
+			anchore name: 'anchore_images'
+		}
 		stage("Deploy Openshift ${ocp_project}") {
 			echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
 			openshift.withCluster( "${ocp_cluster}" ) {
