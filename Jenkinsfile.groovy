@@ -13,6 +13,8 @@ def ocpDevProject = "student-1-customer-dev"
 def ocpTestProject = "student-1-customer-test"
 def ocpProdProject = "student-1-customer-prod"
 
+def ocpAppSuffix = "apps.ocp-nonprod-01.kee.vizuri.com"
+
 
 node ("maven-podman") {
 
@@ -119,6 +121,21 @@ node ("maven-podman") {
 					}
 				}
 			}
+		}
+		
+		
+		stage ('Integration Test') {
+			def testEndpoint = "http://${app_name}-${ocp_project}.${ocpAppSuffix}"
+			sh "mvn -s settings.xml -Dnexus.url=${nexusUrl} -P integration-tests -Dbuild.number=${release-number} -DbaseUrl=${testEndpoint} integration-test"
+			junit "target/surefire-reports/*.xml"
+	
+			step([$class: 'XUnitBuilder',
+				thresholds: [
+					[$class: 'FailedThreshold', unstableThreshold: '1']
+				],
+				tools: [
+					[$class: "JUnitType", pattern: "target/surefire-reports/*.xml"]
+				]])
 		}
 	}
 }
