@@ -1,19 +1,18 @@
 #!/usr/bin/groovy
 
-def imageBase = "registry.kee.vizuri.com";
-def imageNamespace = "student_1";
-def registryUsername = "student-1"
-def registryPassword = "P@ssw0rd"
 def app_name = "customer";
-def nexusUrl = "http://nexus-student-1-cicd.apps.ocp-nonprod-01.kee.vizuri.com";
+def nexusUrl = "http://nexus-student-5-cicd.apps.ocpws.kee.vizuri.com";
 def release_number;
 
-def ocp_cluster = "ocp-nonprod-01"
-def ocpDevProject = "student-1-customer-dev"
-def ocpTestProject = "student-1-customer-test"
-def ocpProdProject = "student-1-customer-prod"
+def imageBase = "registry.kee.vizuri.com";
+def imageNamespace = "student_5";
+def registryUsername = "student-5"
+def registryPassword = "workshop1!"
 
-def ocpAppSuffix = "apps.ocp-nonprod-01.kee.vizuri.com"
+def ocp_cluster = "ocp-ws"
+def ocpDevProject = "student-5-customer-dev"
+def ocpTestProject = "student-5-customer-test"
+def ocpProdProject = "student-5-customer-prod"
 
 
 node ("maven-podman") {
@@ -38,7 +37,6 @@ node ("maven-podman") {
 			echo "release_number: ${release_number}"
 		}
 	}
-
 
 	stage('Build') {
 		echo "In Build"
@@ -71,34 +69,39 @@ node ("maven-podman") {
 			}
 		}
 	}
-	if (BRANCH_NAME ==~ /(develop|release.*)/) {
-		def tag = "${release_number}"
-		stage('Deploy Build Artifact') { sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"	 }
-		stage('Container Build') { sh "podman build -t ${imageBase}/${imageNamespace}/${app_name}:${tag} ." }
-		stage('Container Push') {
-			sh "podman login -u ${registryUsername} -p ${registryPassword} ${imageBase}"
-			sh "podman push ${imageBase}/${imageNamespace}/${app_name}:${tag}"
-		}
 
+	stage('Deploy Build Artifact') {
+		sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"
 	}
-	
 
+	def tag = "${release_number}"
+	
+	if (BRANCH_NAME ==~ /(develop|release.*)/) {
+		stage('Container Build') {
+			sh "podman build -t ${imageBase}/${imageNamespace}/${app_name}:${tag} ."
+		}
+		
+		stage("Container Push") {
+			if (BRANCH_NAME ==~ /(develop|release.*)/) {
+				sh "podman login -u ${registryUsername} -p ${registryPassword} ${imageBase}"
+				sh "podman push ${imageBase}/${imageNamespace}/${app_name}:${tag}"
+			}
+		}
+	}
+
+	if (BRANCH_NAME ==~ /(develop|release.*)/) {
+		stage('Container Scan') {
+			//writeFile file: 'anchore_images', text: "${imageBase}/${imageNamespace}/${app_name}:${tag} Dockerfile"
+			//anchore engineRetries: '800', name: 'anchore_images'
+		}
+	}
 	if (BRANCH_NAME ==~ /(develop)/) {
 		def ocp_project = ocpDevProject;
-		def tag = "${release_number}"
-		stage('Container Scan') {
-			writeFile file: 'anchore_images', text: "${imageBase}/${imageNamespace}/${app_name}:${tag} Dockerfile"
-			anchore engineRetries: '800', name: 'anchore_images'
-		}
 		stage("Deploy Openshift ${ocp_project}") {
-			echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
 			openshift.withCluster( "${ocp_cluster}" ) {
 				openshift.withProject( "${ocp_project}" ) {
 					def dc = openshift.selector("dc", "${app_name}")
-					echo "DC: " + dc
-					echo "DC Exists: " + dc.exists()
 					if(!dc.exists()) {
-						echo "DC Does Not Exist Creating"
 						dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-cicd-pipeline/master/templates/springboot-dc.yaml -p IMAGE_NAME=${imageBase}/${imageNamespace}/${app_name}:${tag} -p APP_NAME=${app_name} -p DATABASE_HOST=customerdb -p DATABASE_DB=customer -p DATABASE_USER=customer -p DATABASE_PASSWORD=customer").narrow("dc")
 					}
 					else {
@@ -111,9 +114,7 @@ node ("maven-podman") {
 					rm.latest()
 					timeout(5) {
 						def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
-						echo "Got LatestDeploymentVersion:" + latestDeploymentVersion
 						def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
-						echo "Got RC" + rc
 						rc.untilEach(1){
 							def rcMap = it.object()
 							return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
@@ -122,24 +123,6 @@ node ("maven-podman") {
 				}
 			}
 		}
-		
-		
-		stage ('Integration Test') {
-			def testEndpoint = "http://${app_name}-${ocp_project}.${ocpAppSuffix}"
-			sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -P integration-tests -Dbuild.number=${release_number} -DbaseUrl=${testEndpoint} integration-test"
-			junit "target/surefire-reports/*.xml"
-	
-			step([$class: 'XUnitBuilder',
-				thresholds: [
-					[$class: 'FailedThreshold', unstableThreshold: '1']
-				],
-				tools: [
-					[$class: "JUnitType", pattern: "target/surefire-reports/*.xml"]
-				]])
-		}
 	}
+
 }
-
-
-
-
