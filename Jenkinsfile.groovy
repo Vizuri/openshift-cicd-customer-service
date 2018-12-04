@@ -62,13 +62,31 @@ node ("maven-podman") {
 
 
 	stage("Quality Gate"){
-		timeout(time: 1, unit: 'HOURS') {
-			def qg = waitForQualityGate()
-			if (qg.status != 'OK') {
-				error "Pipeline aborted due to quality gate failure: ${qg.status}"
+		success = false
+		retry(8) {
+			try {
+				timeout(time: 3, unit: 'SECONDS') {
+					def qg = waitForQualityGate()
+					if (qg.status in ['OK', 'WARN']) {
+						echo "Passed quality gate! Status: ${qg.status}"
+						success = true
+					} else {
+						echo "FAILED quality gate. Status: ${qg.status}"
+					}
+				}
+			} catch(err) {
+				sh '''
+					echo "timeout occured, retrying..."
+					/bin/false
+				'''
 			}
 		}
+
+		if (success != true) {
+		error "Pipeline aborted due to quality gate failure!"
+		}
 	}
+
 
 	stage('Deploy Build Artifact') {
 		sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexusUrl} deploy"
