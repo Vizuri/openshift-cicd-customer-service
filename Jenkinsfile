@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
-@Library('github.com:Vizuri/openshift-cicd-pipeline@master')
-          
+//@Library('github.com/vizuri/openshift-pipeline-templates@master')
+@Library('github.com/vizuri/openshift-cicd-pipeline@master')
 //@Library('gogs.apps.ocp-nonprod-01.kee.vizuri.com/student-5/openshift-cicd-pipeline@master')
 
 def javaDeliveryPipeline = new com.vizuri.openshift.JavaDeliveryPipeline();
