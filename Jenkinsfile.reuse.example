@@ -1,0 +1,22 @@
+#!/usr/bin/groovy
+
+@Library('github.com/vizuri/openshift-cicd-pipeline@master')
+
+def javaDeliveryPipeline = new com.vizuri.openshift.JavaDeliveryPipeline();
+
+
+javaDeliveryPipeline {
+    ocpAppSuffix = 'apps.ocpws.kee.vizuri.com'
+    imageNamespace = 'student_0';
+    registryUsername = 'student-0'
+    imageBase = 'quay.apps.ocpws.kee.vizuri.com'
+    registryUsername = 'student-0'
+    registryPassword = 'workshop1!'
+    app_name = 'customer'
+    ocp_dev_cluster = 'ocp-ws'
+    ocp_dev_project = 'student-0-customer-dev'
+    ocp_test_cluster = 'ocp-ws'
+    ocp_test_project = 'student-0-customer-test'
+    ocp_prod_cluster = 'ocp-ws'
+    ocp_prod_project = 'student-0-customer-prod'
+}
